@@ -8011,6 +8011,1058 @@ function normalizeComponent (
 }
 
 
+/***/ }),
+/* 11 */,
+/* 12 */,
+/* 13 */,
+/* 14 */,
+/* 15 */,
+/* 16 */,
+/* 17 */,
+/* 18 */,
+/* 19 */,
+/* 20 */,
+/* 21 */
+/*!**********************************************************!*\
+  !*** ./node_modules/@babel/runtime/regenerator/index.js ***!
+  \**********************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+module.exports = __webpack_require__(/*! regenerator-runtime */ 22);
+
+/***/ }),
+/* 22 */
+/*!************************************************************!*\
+  !*** ./node_modules/regenerator-runtime/runtime-module.js ***!
+  \************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+/**
+ * Copyright (c) 2014-present, Facebook, Inc.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+// This method of obtaining a reference to the global object needs to be
+// kept identical to the way it is obtained in runtime.js
+var g = (function() {
+  return this || (typeof self === "object" && self);
+})() || Function("return this")();
+
+// Use `getOwnPropertyNames` because not all browsers support calling
+// `hasOwnProperty` on the global `self` object in a worker. See #183.
+var hadRuntime = g.regeneratorRuntime &&
+  Object.getOwnPropertyNames(g).indexOf("regeneratorRuntime") >= 0;
+
+// Save the old regeneratorRuntime in case it needs to be restored later.
+var oldRuntime = hadRuntime && g.regeneratorRuntime;
+
+// Force reevalutation of runtime.js.
+g.regeneratorRuntime = undefined;
+
+module.exports = __webpack_require__(/*! ./runtime */ 23);
+
+if (hadRuntime) {
+  // Restore the original runtime.
+  g.regeneratorRuntime = oldRuntime;
+} else {
+  // Remove the global property added by runtime.js.
+  try {
+    delete g.regeneratorRuntime;
+  } catch(e) {
+    g.regeneratorRuntime = undefined;
+  }
+}
+
+
+/***/ }),
+/* 23 */
+/*!*****************************************************!*\
+  !*** ./node_modules/regenerator-runtime/runtime.js ***!
+  \*****************************************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+/**
+ * Copyright (c) 2014-present, Facebook, Inc.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+!(function(global) {
+  "use strict";
+
+  var Op = Object.prototype;
+  var hasOwn = Op.hasOwnProperty;
+  var undefined; // More compressible than void 0.
+  var $Symbol = typeof Symbol === "function" ? Symbol : {};
+  var iteratorSymbol = $Symbol.iterator || "@@iterator";
+  var asyncIteratorSymbol = $Symbol.asyncIterator || "@@asyncIterator";
+  var toStringTagSymbol = $Symbol.toStringTag || "@@toStringTag";
+
+  var inModule = typeof module === "object";
+  var runtime = global.regeneratorRuntime;
+  if (runtime) {
+    if (inModule) {
+      // If regeneratorRuntime is defined globally and we're in a module,
+      // make the exports object identical to regeneratorRuntime.
+      module.exports = runtime;
+    }
+    // Don't bother evaluating the rest of this file if the runtime was
+    // already defined globally.
+    return;
+  }
+
+  // Define the runtime globally (as expected by generated code) as either
+  // module.exports (if we're in a module) or a new, empty object.
+  runtime = global.regeneratorRuntime = inModule ? module.exports : {};
+
+  function wrap(innerFn, outerFn, self, tryLocsList) {
+    // If outerFn provided and outerFn.prototype is a Generator, then outerFn.prototype instanceof Generator.
+    var protoGenerator = outerFn && outerFn.prototype instanceof Generator ? outerFn : Generator;
+    var generator = Object.create(protoGenerator.prototype);
+    var context = new Context(tryLocsList || []);
+
+    // The ._invoke method unifies the implementations of the .next,
+    // .throw, and .return methods.
+    generator._invoke = makeInvokeMethod(innerFn, self, context);
+
+    return generator;
+  }
+  runtime.wrap = wrap;
+
+  // Try/catch helper to minimize deoptimizations. Returns a completion
+  // record like context.tryEntries[i].completion. This interface could
+  // have been (and was previously) designed to take a closure to be
+  // invoked without arguments, but in all the cases we care about we
+  // already have an existing method we want to call, so there's no need
+  // to create a new function object. We can even get away with assuming
+  // the method takes exactly one argument, since that happens to be true
+  // in every case, so we don't have to touch the arguments object. The
+  // only additional allocation required is the completion record, which
+  // has a stable shape and so hopefully should be cheap to allocate.
+  function tryCatch(fn, obj, arg) {
+    try {
+      return { type: "normal", arg: fn.call(obj, arg) };
+    } catch (err) {
+      return { type: "throw", arg: err };
+    }
+  }
+
+  var GenStateSuspendedStart = "suspendedStart";
+  var GenStateSuspendedYield = "suspendedYield";
+  var GenStateExecuting = "executing";
+  var GenStateCompleted = "completed";
+
+  // Returning this object from the innerFn has the same effect as
+  // breaking out of the dispatch switch statement.
+  var ContinueSentinel = {};
+
+  // Dummy constructor functions that we use as the .constructor and
+  // .constructor.prototype properties for functions that return Generator
+  // objects. For full spec compliance, you may wish to configure your
+  // minifier not to mangle the names of these two functions.
+  function Generator() {}
+  function GeneratorFunction() {}
+  function GeneratorFunctionPrototype() {}
+
+  // This is a polyfill for %IteratorPrototype% for environments that
+  // don't natively support it.
+  var IteratorPrototype = {};
+  IteratorPrototype[iteratorSymbol] = function () {
+    return this;
+  };
+
+  var getProto = Object.getPrototypeOf;
+  var NativeIteratorPrototype = getProto && getProto(getProto(values([])));
+  if (NativeIteratorPrototype &&
+      NativeIteratorPrototype !== Op &&
+      hasOwn.call(NativeIteratorPrototype, iteratorSymbol)) {
+    // This environment has a native %IteratorPrototype%; use it instead
+    // of the polyfill.
+    IteratorPrototype = NativeIteratorPrototype;
+  }
+
+  var Gp = GeneratorFunctionPrototype.prototype =
+    Generator.prototype = Object.create(IteratorPrototype);
+  GeneratorFunction.prototype = Gp.constructor = GeneratorFunctionPrototype;
+  GeneratorFunctionPrototype.constructor = GeneratorFunction;
+  GeneratorFunctionPrototype[toStringTagSymbol] =
+    GeneratorFunction.displayName = "GeneratorFunction";
+
+  // Helper for defining the .next, .throw, and .return methods of the
+  // Iterator interface in terms of a single ._invoke method.
+  function defineIteratorMethods(prototype) {
+    ["next", "throw", "return"].forEach(function(method) {
+      prototype[method] = function(arg) {
+        return this._invoke(method, arg);
+      };
+    });
+  }
+
+  runtime.isGeneratorFunction = function(genFun) {
+    var ctor = typeof genFun === "function" && genFun.constructor;
+    return ctor
+      ? ctor === GeneratorFunction ||
+        // For the native GeneratorFunction constructor, the best we can
+        // do is to check its .name property.
+        (ctor.displayName || ctor.name) === "GeneratorFunction"
+      : false;
+  };
+
+  runtime.mark = function(genFun) {
+    if (Object.setPrototypeOf) {
+      Object.setPrototypeOf(genFun, GeneratorFunctionPrototype);
+    } else {
+      genFun.__proto__ = GeneratorFunctionPrototype;
+      if (!(toStringTagSymbol in genFun)) {
+        genFun[toStringTagSymbol] = "GeneratorFunction";
+      }
+    }
+    genFun.prototype = Object.create(Gp);
+    return genFun;
+  };
+
+  // Within the body of any async function, `await x` is transformed to
+  // `yield regeneratorRuntime.awrap(x)`, so that the runtime can test
+  // `hasOwn.call(value, "__await")` to determine if the yielded value is
+  // meant to be awaited.
+  runtime.awrap = function(arg) {
+    return { __await: arg };
+  };
+
+  function AsyncIterator(generator) {
+    function invoke(method, arg, resolve, reject) {
+      var record = tryCatch(generator[method], generator, arg);
+      if (record.type === "throw") {
+        reject(record.arg);
+      } else {
+        var result = record.arg;
+        var value = result.value;
+        if (value &&
+            typeof value === "object" &&
+            hasOwn.call(value, "__await")) {
+          return Promise.resolve(value.__await).then(function(value) {
+            invoke("next", value, resolve, reject);
+          }, function(err) {
+            invoke("throw", err, resolve, reject);
+          });
+        }
+
+        return Promise.resolve(value).then(function(unwrapped) {
+          // When a yielded Promise is resolved, its final value becomes
+          // the .value of the Promise<{value,done}> result for the
+          // current iteration.
+          result.value = unwrapped;
+          resolve(result);
+        }, function(error) {
+          // If a rejected Promise was yielded, throw the rejection back
+          // into the async generator function so it can be handled there.
+          return invoke("throw", error, resolve, reject);
+        });
+      }
+    }
+
+    var previousPromise;
+
+    function enqueue(method, arg) {
+      function callInvokeWithMethodAndArg() {
+        return new Promise(function(resolve, reject) {
+          invoke(method, arg, resolve, reject);
+        });
+      }
+
+      return previousPromise =
+        // If enqueue has been called before, then we want to wait until
+        // all previous Promises have been resolved before calling invoke,
+        // so that results are always delivered in the correct order. If
+        // enqueue has not been called before, then it is important to
+        // call invoke immediately, without waiting on a callback to fire,
+        // so that the async generator function has the opportunity to do
+        // any necessary setup in a predictable way. This predictability
+        // is why the Promise constructor synchronously invokes its
+        // executor callback, and why async functions synchronously
+        // execute code before the first await. Since we implement simple
+        // async functions in terms of async generators, it is especially
+        // important to get this right, even though it requires care.
+        previousPromise ? previousPromise.then(
+          callInvokeWithMethodAndArg,
+          // Avoid propagating failures to Promises returned by later
+          // invocations of the iterator.
+          callInvokeWithMethodAndArg
+        ) : callInvokeWithMethodAndArg();
+    }
+
+    // Define the unified helper method that is used to implement .next,
+    // .throw, and .return (see defineIteratorMethods).
+    this._invoke = enqueue;
+  }
+
+  defineIteratorMethods(AsyncIterator.prototype);
+  AsyncIterator.prototype[asyncIteratorSymbol] = function () {
+    return this;
+  };
+  runtime.AsyncIterator = AsyncIterator;
+
+  // Note that simple async functions are implemented on top of
+  // AsyncIterator objects; they just return a Promise for the value of
+  // the final result produced by the iterator.
+  runtime.async = function(innerFn, outerFn, self, tryLocsList) {
+    var iter = new AsyncIterator(
+      wrap(innerFn, outerFn, self, tryLocsList)
+    );
+
+    return runtime.isGeneratorFunction(outerFn)
+      ? iter // If outerFn is a generator, return the full iterator.
+      : iter.next().then(function(result) {
+          return result.done ? result.value : iter.next();
+        });
+  };
+
+  function makeInvokeMethod(innerFn, self, context) {
+    var state = GenStateSuspendedStart;
+
+    return function invoke(method, arg) {
+      if (state === GenStateExecuting) {
+        throw new Error("Generator is already running");
+      }
+
+      if (state === GenStateCompleted) {
+        if (method === "throw") {
+          throw arg;
+        }
+
+        // Be forgiving, per 25.3.3.3.3 of the spec:
+        // https://people.mozilla.org/~jorendorff/es6-draft.html#sec-generatorresume
+        return doneResult();
+      }
+
+      context.method = method;
+      context.arg = arg;
+
+      while (true) {
+        var delegate = context.delegate;
+        if (delegate) {
+          var delegateResult = maybeInvokeDelegate(delegate, context);
+          if (delegateResult) {
+            if (delegateResult === ContinueSentinel) continue;
+            return delegateResult;
+          }
+        }
+
+        if (context.method === "next") {
+          // Setting context._sent for legacy support of Babel's
+          // function.sent implementation.
+          context.sent = context._sent = context.arg;
+
+        } else if (context.method === "throw") {
+          if (state === GenStateSuspendedStart) {
+            state = GenStateCompleted;
+            throw context.arg;
+          }
+
+          context.dispatchException(context.arg);
+
+        } else if (context.method === "return") {
+          context.abrupt("return", context.arg);
+        }
+
+        state = GenStateExecuting;
+
+        var record = tryCatch(innerFn, self, context);
+        if (record.type === "normal") {
+          // If an exception is thrown from innerFn, we leave state ===
+          // GenStateExecuting and loop back for another invocation.
+          state = context.done
+            ? GenStateCompleted
+            : GenStateSuspendedYield;
+
+          if (record.arg === ContinueSentinel) {
+            continue;
+          }
+
+          return {
+            value: record.arg,
+            done: context.done
+          };
+
+        } else if (record.type === "throw") {
+          state = GenStateCompleted;
+          // Dispatch the exception by looping back around to the
+          // context.dispatchException(context.arg) call above.
+          context.method = "throw";
+          context.arg = record.arg;
+        }
+      }
+    };
+  }
+
+  // Call delegate.iterator[context.method](context.arg) and handle the
+  // result, either by returning a { value, done } result from the
+  // delegate iterator, or by modifying context.method and context.arg,
+  // setting context.delegate to null, and returning the ContinueSentinel.
+  function maybeInvokeDelegate(delegate, context) {
+    var method = delegate.iterator[context.method];
+    if (method === undefined) {
+      // A .throw or .return when the delegate iterator has no .throw
+      // method always terminates the yield* loop.
+      context.delegate = null;
+
+      if (context.method === "throw") {
+        if (delegate.iterator.return) {
+          // If the delegate iterator has a return method, give it a
+          // chance to clean up.
+          context.method = "return";
+          context.arg = undefined;
+          maybeInvokeDelegate(delegate, context);
+
+          if (context.method === "throw") {
+            // If maybeInvokeDelegate(context) changed context.method from
+            // "return" to "throw", let that override the TypeError below.
+            return ContinueSentinel;
+          }
+        }
+
+        context.method = "throw";
+        context.arg = new TypeError(
+          "The iterator does not provide a 'throw' method");
+      }
+
+      return ContinueSentinel;
+    }
+
+    var record = tryCatch(method, delegate.iterator, context.arg);
+
+    if (record.type === "throw") {
+      context.method = "throw";
+      context.arg = record.arg;
+      context.delegate = null;
+      return ContinueSentinel;
+    }
+
+    var info = record.arg;
+
+    if (! info) {
+      context.method = "throw";
+      context.arg = new TypeError("iterator result is not an object");
+      context.delegate = null;
+      return ContinueSentinel;
+    }
+
+    if (info.done) {
+      // Assign the result of the finished delegate to the temporary
+      // variable specified by delegate.resultName (see delegateYield).
+      context[delegate.resultName] = info.value;
+
+      // Resume execution at the desired location (see delegateYield).
+      context.next = delegate.nextLoc;
+
+      // If context.method was "throw" but the delegate handled the
+      // exception, let the outer generator proceed normally. If
+      // context.method was "next", forget context.arg since it has been
+      // "consumed" by the delegate iterator. If context.method was
+      // "return", allow the original .return call to continue in the
+      // outer generator.
+      if (context.method !== "return") {
+        context.method = "next";
+        context.arg = undefined;
+      }
+
+    } else {
+      // Re-yield the result returned by the delegate method.
+      return info;
+    }
+
+    // The delegate iterator is finished, so forget it and continue with
+    // the outer generator.
+    context.delegate = null;
+    return ContinueSentinel;
+  }
+
+  // Define Generator.prototype.{next,throw,return} in terms of the
+  // unified ._invoke helper method.
+  defineIteratorMethods(Gp);
+
+  Gp[toStringTagSymbol] = "Generator";
+
+  // A Generator should always return itself as the iterator object when the
+  // @@iterator function is called on it. Some browsers' implementations of the
+  // iterator prototype chain incorrectly implement this, causing the Generator
+  // object to not be returned from this call. This ensures that doesn't happen.
+  // See https://github.com/facebook/regenerator/issues/274 for more details.
+  Gp[iteratorSymbol] = function() {
+    return this;
+  };
+
+  Gp.toString = function() {
+    return "[object Generator]";
+  };
+
+  function pushTryEntry(locs) {
+    var entry = { tryLoc: locs[0] };
+
+    if (1 in locs) {
+      entry.catchLoc = locs[1];
+    }
+
+    if (2 in locs) {
+      entry.finallyLoc = locs[2];
+      entry.afterLoc = locs[3];
+    }
+
+    this.tryEntries.push(entry);
+  }
+
+  function resetTryEntry(entry) {
+    var record = entry.completion || {};
+    record.type = "normal";
+    delete record.arg;
+    entry.completion = record;
+  }
+
+  function Context(tryLocsList) {
+    // The root entry object (effectively a try statement without a catch
+    // or a finally block) gives us a place to store values thrown from
+    // locations where there is no enclosing try statement.
+    this.tryEntries = [{ tryLoc: "root" }];
+    tryLocsList.forEach(pushTryEntry, this);
+    this.reset(true);
+  }
+
+  runtime.keys = function(object) {
+    var keys = [];
+    for (var key in object) {
+      keys.push(key);
+    }
+    keys.reverse();
+
+    // Rather than returning an object with a next method, we keep
+    // things simple and return the next function itself.
+    return function next() {
+      while (keys.length) {
+        var key = keys.pop();
+        if (key in object) {
+          next.value = key;
+          next.done = false;
+          return next;
+        }
+      }
+
+      // To avoid creating an additional object, we just hang the .value
+      // and .done properties off the next function object itself. This
+      // also ensures that the minifier will not anonymize the function.
+      next.done = true;
+      return next;
+    };
+  };
+
+  function values(iterable) {
+    if (iterable) {
+      var iteratorMethod = iterable[iteratorSymbol];
+      if (iteratorMethod) {
+        return iteratorMethod.call(iterable);
+      }
+
+      if (typeof iterable.next === "function") {
+        return iterable;
+      }
+
+      if (!isNaN(iterable.length)) {
+        var i = -1, next = function next() {
+          while (++i < iterable.length) {
+            if (hasOwn.call(iterable, i)) {
+              next.value = iterable[i];
+              next.done = false;
+              return next;
+            }
+          }
+
+          next.value = undefined;
+          next.done = true;
+
+          return next;
+        };
+
+        return next.next = next;
+      }
+    }
+
+    // Return an iterator with no values.
+    return { next: doneResult };
+  }
+  runtime.values = values;
+
+  function doneResult() {
+    return { value: undefined, done: true };
+  }
+
+  Context.prototype = {
+    constructor: Context,
+
+    reset: function(skipTempReset) {
+      this.prev = 0;
+      this.next = 0;
+      // Resetting context._sent for legacy support of Babel's
+      // function.sent implementation.
+      this.sent = this._sent = undefined;
+      this.done = false;
+      this.delegate = null;
+
+      this.method = "next";
+      this.arg = undefined;
+
+      this.tryEntries.forEach(resetTryEntry);
+
+      if (!skipTempReset) {
+        for (var name in this) {
+          // Not sure about the optimal order of these conditions:
+          if (name.charAt(0) === "t" &&
+              hasOwn.call(this, name) &&
+              !isNaN(+name.slice(1))) {
+            this[name] = undefined;
+          }
+        }
+      }
+    },
+
+    stop: function() {
+      this.done = true;
+
+      var rootEntry = this.tryEntries[0];
+      var rootRecord = rootEntry.completion;
+      if (rootRecord.type === "throw") {
+        throw rootRecord.arg;
+      }
+
+      return this.rval;
+    },
+
+    dispatchException: function(exception) {
+      if (this.done) {
+        throw exception;
+      }
+
+      var context = this;
+      function handle(loc, caught) {
+        record.type = "throw";
+        record.arg = exception;
+        context.next = loc;
+
+        if (caught) {
+          // If the dispatched exception was caught by a catch block,
+          // then let that catch block handle the exception normally.
+          context.method = "next";
+          context.arg = undefined;
+        }
+
+        return !! caught;
+      }
+
+      for (var i = this.tryEntries.length - 1; i >= 0; --i) {
+        var entry = this.tryEntries[i];
+        var record = entry.completion;
+
+        if (entry.tryLoc === "root") {
+          // Exception thrown outside of any try block that could handle
+          // it, so set the completion value of the entire function to
+          // throw the exception.
+          return handle("end");
+        }
+
+        if (entry.tryLoc <= this.prev) {
+          var hasCatch = hasOwn.call(entry, "catchLoc");
+          var hasFinally = hasOwn.call(entry, "finallyLoc");
+
+          if (hasCatch && hasFinally) {
+            if (this.prev < entry.catchLoc) {
+              return handle(entry.catchLoc, true);
+            } else if (this.prev < entry.finallyLoc) {
+              return handle(entry.finallyLoc);
+            }
+
+          } else if (hasCatch) {
+            if (this.prev < entry.catchLoc) {
+              return handle(entry.catchLoc, true);
+            }
+
+          } else if (hasFinally) {
+            if (this.prev < entry.finallyLoc) {
+              return handle(entry.finallyLoc);
+            }
+
+          } else {
+            throw new Error("try statement without catch or finally");
+          }
+        }
+      }
+    },
+
+    abrupt: function(type, arg) {
+      for (var i = this.tryEntries.length - 1; i >= 0; --i) {
+        var entry = this.tryEntries[i];
+        if (entry.tryLoc <= this.prev &&
+            hasOwn.call(entry, "finallyLoc") &&
+            this.prev < entry.finallyLoc) {
+          var finallyEntry = entry;
+          break;
+        }
+      }
+
+      if (finallyEntry &&
+          (type === "break" ||
+           type === "continue") &&
+          finallyEntry.tryLoc <= arg &&
+          arg <= finallyEntry.finallyLoc) {
+        // Ignore the finally entry if control is not jumping to a
+        // location outside the try/catch block.
+        finallyEntry = null;
+      }
+
+      var record = finallyEntry ? finallyEntry.completion : {};
+      record.type = type;
+      record.arg = arg;
+
+      if (finallyEntry) {
+        this.method = "next";
+        this.next = finallyEntry.finallyLoc;
+        return ContinueSentinel;
+      }
+
+      return this.complete(record);
+    },
+
+    complete: function(record, afterLoc) {
+      if (record.type === "throw") {
+        throw record.arg;
+      }
+
+      if (record.type === "break" ||
+          record.type === "continue") {
+        this.next = record.arg;
+      } else if (record.type === "return") {
+        this.rval = this.arg = record.arg;
+        this.method = "return";
+        this.next = "end";
+      } else if (record.type === "normal" && afterLoc) {
+        this.next = afterLoc;
+      }
+
+      return ContinueSentinel;
+    },
+
+    finish: function(finallyLoc) {
+      for (var i = this.tryEntries.length - 1; i >= 0; --i) {
+        var entry = this.tryEntries[i];
+        if (entry.finallyLoc === finallyLoc) {
+          this.complete(entry.completion, entry.afterLoc);
+          resetTryEntry(entry);
+          return ContinueSentinel;
+        }
+      }
+    },
+
+    "catch": function(tryLoc) {
+      for (var i = this.tryEntries.length - 1; i >= 0; --i) {
+        var entry = this.tryEntries[i];
+        if (entry.tryLoc === tryLoc) {
+          var record = entry.completion;
+          if (record.type === "throw") {
+            var thrown = record.arg;
+            resetTryEntry(entry);
+          }
+          return thrown;
+        }
+      }
+
+      // The context.catch method must only be called with a location
+      // argument that corresponds to a known catch block.
+      throw new Error("illegal catch attempt");
+    },
+
+    delegateYield: function(iterable, resultName, nextLoc) {
+      this.delegate = {
+        iterator: values(iterable),
+        resultName: resultName,
+        nextLoc: nextLoc
+      };
+
+      if (this.method === "next") {
+        // Deliberately forget the last sent value so that we don't
+        // accidentally pass it on to the delegate.
+        this.arg = undefined;
+      }
+
+      return ContinueSentinel;
+    }
+  };
+})(
+  // In sloppy mode, unbound `this` refers to the global object, fallback to
+  // Function constructor if we're in global strict mode. That is sadly a form
+  // of indirect eval which violates Content Security Policy.
+  (function() {
+    return this || (typeof self === "object" && self);
+  })() || Function("return this")()
+);
+
+
+/***/ }),
+/* 24 */
+/*!**************************************************************************!*\
+  !*** D:/HBuilder/HBuilderProjects/alloss-upload/commont/libs/ossUtil.js ***!
+  \**************************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+/* WEBPACK VAR INJECTION */(function(uni) {Object.defineProperty(exports, "__esModule", { value: true });exports.default = void 0;var _crypto = _interopRequireDefault(__webpack_require__(/*! ./crypto.js */ 25));
+var _config = _interopRequireDefault(__webpack_require__(/*! ./config.js */ 37));
+__webpack_require__(/*! ./hmac.js */ 26);
+__webpack_require__(/*! ./sha1.js */ 27);
+var _base = __webpack_require__(/*! ./base64.js */ 28);function _interopRequireDefault(obj) {return obj && obj.__esModule ? obj : { default: obj };}
+
+var uploadFileSize = 1024 * 1024 * 100; // 上传文件的大小限制100m
+var _default =
+{
+  _getPolicy: function _getPolicy() {
+    var policyText = {
+      "expiration": "2022-01-01T12:00:00.000Z", //设置该Policy的失效时间，超过这个失效时间之后，就没有办法通过这个policy上传文件了
+      "conditions": [
+      ["content-length-range", 0, uploadFileSize] // 设置上传文件的大小限制
+      ] };
+
+
+    return _base.Base64.encode(JSON.stringify(policyText));
+  },
+  _getSignature: function _getSignature(message) {
+    var bytes = _crypto.default.HMAC(_crypto.default.SHA1, message, _config.default.AccessKeySecret, {
+      asBytes: true });
+
+    return _crypto.default.util.bytesToBase64(bytes);
+  },
+  _getSuffix: function _getSuffix(filename) {
+    var pos = filename.lastIndexOf('.');
+    var suffix = '';
+    if (pos != -1) {
+      suffix = filename.substring(pos);
+    }
+    return suffix;
+  },
+  /* 
+         根据当前时间戳在oss中自动生成对应时间的图片地址  
+     	
+     	如：goods/images/2021-02-25/图片地址 
+      */
+  getFileName: function getFileName(name, filename) {
+    var nowTime = function getNowFormatDate() {
+      var date = new Date();
+      var seperator1 = "-";
+      var year = date.getFullYear();
+      var month = date.getMonth() + 1;
+      var strDate = date.getDate();
+      if (month >= 1 && month <= 9) {
+        month = "0" + month;
+      }
+      if (strDate >= 0 && strDate <= 9) {
+        strDate = "0" + strDate;
+      }
+      var currentdate = year + seperator1 + month + seperator1 + strDate;
+      return currentdate;
+    }();
+    return name + '/' + nowTime + '/' + new Date().getTime() + Math.random().toString(36).substring(3, 20) + this._getSuffix(filename);
+  },
+  /* 
+         根据当前时间戳在oss中自动生成对应时间的视频地址  
+     	
+     	如：goods/video/2021-02-25/视频地址 
+      */
+  getVideoName: function getVideoName(name, filename) {
+    var nowTime = function getNowFormatDate() {
+      var date = new Date();
+      var seperator1 = "-";
+      var year = date.getFullYear();
+      var month = date.getMonth() + 1;
+      var strDate = date.getDate();
+      if (month >= 1 && month <= 9) {
+        month = "0" + month;
+      }
+      if (strDate >= 0 && strDate <= 9) {
+        strDate = "0" + strDate;
+      }
+      var currentdate = year + seperator1 + month + seperator1 + strDate;
+      return currentdate;
+    }();
+    return name + 'faxingVideo/' + nowTime + '/' + new Date().getTime() + Math.random().toString(36).substring(3, 20) + this._getSuffix(filename);
+  },
+  /* 选择获取本地图片 */
+  getImage: function getImage() {
+    return new Promise(function (resolve, reject) {
+      uni.chooseImage({
+        count: 1, //默认9
+        sizeType: ['original', 'compressed'], //可以指定是原图还是压缩图，默认二者都有
+        sourceType: ['album', 'camera'],
+        success: function success(res) {
+          resolve(res);
+        } });
+
+    });
+  },
+  /* 选择获取本地视频 */
+  getVideo: function getVideo() {
+    return new Promise(function (resolve, reject) {
+      uni.chooseVideo({
+        count: 1,
+        sourceType: ['camera', 'album'],
+        success: function success(res) {
+          if (res.size > uploadFileSize) {
+            uni.showToast({
+              title: '文件大小超过系统上传限制：' + uploadFileSize,
+              icon: 'none',
+              duration: 1000 });
+
+            return;
+          }
+          resolve(res.tempFilePath);
+        },
+        fail: function fail() {
+          uni.showToast({
+            title: '取消选择视频',
+            icon: 'none',
+            duration: 2000 });
+
+        } });
+
+    });
+  },
+  // 获取STS签名
+  get_STS: function get_STS() {var _this = this;
+    // 通过后台接口读取签名信息
+    /* return new Promise((resolve, reject) => {
+        let name = new Date().getTime() + Math.random();
+        let operate = 'uploadImg';
+        let that = this;
+        uni.request({
+            method: "GET",
+            url: "*************", // 接口请求地址
+            data: {
+                name,
+                operate,
+                sign: Crypto.MD5(name + operate + "bayinabayin888").toString()
+            },
+            success(res) {
+                if (res.data.code != 200) {
+                    that.$alert(res.data.message || res.data.msg)
+                } else {
+                    resolve(res.data.data)
+                }
+            },
+            error(err) {
+                reject(err)
+            }
+        })
+    }) */
+    // 通过本地自己设置签名信息
+    return new Promise(function (resolve, reject) {
+      var policy = _this._getPolicy();
+      var res = {
+        accessId: _config.default.OSSAccessKeyId,
+        host: _config.default.uploadImageUrl,
+        policy: policy,
+        signature: _this._getSignature(policy) };
+
+      resolve(res);
+    });
+  } };exports.default = _default;
+/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./node_modules/@dcloudio/uni-mp-weixin/dist/index.js */ 1)["default"]))
+
+/***/ }),
+/* 25 */
+/*!*************************************************************************!*\
+  !*** D:/HBuilder/HBuilderProjects/alloss-upload/commont/libs/crypto.js ***!
+  \*************************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });exports.default = void 0; /*!
+                                                                                                       Crypto-JS v1.1.0
+                                                                                                       http://code.google.com/p/crypto-js/
+                                                                                                       Copyright (c) 2009, Jeff Mott. All rights reserved.
+                                                                                                       http://code.google.com/p/crypto-js/wiki/License
+                                                                                                      */var base64map = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";var Crypto = {};var util = Crypto.util = { rotl: function rotl(n, b) {return n << b | n >>> 32 - b;}, rotr: function rotr(n, b) {return n << 32 - b | n >>> b;}, endian: function endian(n) {if (n.constructor == Number) {return util.rotl(n, 8) & 0x00FF00FF | util.rotl(n, 24) & 0xFF00FF00;}for (var i = 0; i < n.length; i++) {n[i] = util.endian(n[i]);}return n;}, randomBytes: function randomBytes(n) {for (var bytes = []; n > 0; n--) {bytes.push(Math.floor(Math.random() * 256));}return bytes;}, stringToBytes: function stringToBytes(str) {var bytes = [];for (var i = 0; i < str.length; i++) {bytes.push(str.charCodeAt(i));}return bytes;}, bytesToString: function bytesToString(bytes) {var str = [];for (var i = 0; i < bytes.length; i++) {str.push(String.fromCharCode(bytes[i]));}return str.join("");}, stringToWords: function stringToWords(str) {var words = [];for (var c = 0, b = 0; c < str.length; c++, b += 8) {words[b >>> 5] |= str.charCodeAt(c) << 24 - b % 32;}return words;}, bytesToWords: function bytesToWords(bytes) {var words = [];for (var i = 0, b = 0; i < bytes.length; i++, b += 8) {words[b >>> 5] |= bytes[i] << 24 - b % 32;}return words;}, wordsToBytes: function wordsToBytes(words) {var bytes = [];for (var b = 0; b < words.length * 32; b += 8) {bytes.push(words[b >>> 5] >>> 24 - b % 32 & 0xFF);}return bytes;}, bytesToHex: function bytesToHex(bytes) {var hex = [];for (var i = 0; i < bytes.length; i++) {hex.push((bytes[i] >>> 4).toString(16));hex.push((bytes[i] & 0xF).toString(16));}return hex.join("");}, hexToBytes: function hexToBytes(hex) {var bytes = [];for (var c = 0; c < hex.length; c += 2) {bytes.push(parseInt(hex.substr(c, 2), 16));}return bytes;}, bytesToBase64: function bytesToBase64(bytes) {if (typeof btoa == "function") return btoa(util.bytesToString(bytes));var base64 = [],overflow;for (var i = 0; i < bytes.length; i++) {switch (i % 3) {case 0:base64.push(base64map.charAt(bytes[i] >>> 2));overflow = (bytes[i] & 0x3) << 4;break;case 1:base64.push(base64map.charAt(overflow | bytes[i] >>> 4));overflow = (bytes[i] & 0xF) << 2;break;case 2:base64.push(base64map.charAt(overflow | bytes[i] >>> 6));base64.push(base64map.charAt(bytes[i] & 0x3F));overflow = -1;}}if (overflow != undefined && overflow != -1) base64.push(base64map.charAt(overflow));while (base64.length % 4 != 0) {base64.push("=");}return base64.join("");}, base64ToBytes: function base64ToBytes(base64) {if (typeof atob == "function") return util.stringToBytes(atob(base64));base64 = base64.replace(/[^A-Z0-9+\/]/ig, "");var bytes = [];for (var i = 0; i < base64.length; i++) {switch (i % 4) {case 1:bytes.push(base64map.indexOf(base64.charAt(i - 1)) << 2 | base64map.indexOf(base64.charAt(i)) >>> 4);break;case 2:bytes.push((base64map.indexOf(base64.charAt(i - 1)) & 0xF) << 4 | base64map.indexOf(base64.charAt(i)) >>> 2);break;case 3:bytes.push((base64map.indexOf(base64.charAt(i - 1)) & 0x3) << 6 | base64map.indexOf(base64.charAt(i)));break;}}return bytes;} };Crypto.mode = {};var _default = Crypto;exports.default = _default;
+
+/***/ }),
+/* 26 */
+/*!***********************************************************************!*\
+  !*** D:/HBuilder/HBuilderProjects/alloss-upload/commont/libs/hmac.js ***!
+  \***********************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+var _crypto = _interopRequireDefault(__webpack_require__(/*! @/commont/libs/crypto.js */ 25));function _interopRequireDefault(obj) {return obj && obj.__esModule ? obj : { default: obj };} /*!
+                                                                                                                                                                                     Crypto-JS v1.1.0
+                                                                                                                                                                                     http://code.google.com/p/crypto-js/
+                                                                                                                                                                                     Copyright (c) 2009, Jeff Mott. All rights reserved.
+                                                                                                                                                                                     http://code.google.com/p/crypto-js/wiki/License
+                                                                                                                                                                                     */(function () {var util = _crypto.default.util;_crypto.default.HMAC = function (hasher, message, key, options) {key = key.length > hasher._blocksize * 4 ? hasher(key, { asBytes: true }) : util.stringToBytes(key);var okey = key,ikey = key.slice(0);for (var i = 0; i < hasher._blocksize * 4; i++) {okey[i] ^= 0x5C;ikey[i] ^= 0x36;}var hmacbytes = hasher(util.bytesToString(okey) + hasher(util.bytesToString(ikey) + message, { asString: true }), { asBytes: true });return options && options.asBytes ? hmacbytes : options && options.asString ? util.bytesToString(hmacbytes) : util.bytesToHex(hmacbytes);};})();
+
+/***/ }),
+/* 27 */
+/*!***********************************************************************!*\
+  !*** D:/HBuilder/HBuilderProjects/alloss-upload/commont/libs/sha1.js ***!
+  \***********************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+var _crypto = _interopRequireDefault(__webpack_require__(/*! @/commont/libs/crypto.js */ 25));function _interopRequireDefault(obj) {return obj && obj.__esModule ? obj : { default: obj };} /*!
+                                                                                                                                                                                     Crypto-JS v1.1.0
+                                                                                                                                                                                     http://code.google.com/p/crypto-js/
+                                                                                                                                                                                     Copyright (c) 2009, Jeff Mott. All rights reserved.
+                                                                                                                                                                                     http://code.google.com/p/crypto-js/wiki/License
+                                                                                                                                                                                     */(function () {var util = _crypto.default.util;var SHA1 = _crypto.default.SHA1 = function (message, options) {var digestbytes = util.wordsToBytes(SHA1._sha1(message));return options && options.asBytes ? digestbytes : options && options.asString ? util.bytesToString(digestbytes) : util.bytesToHex(digestbytes);};SHA1._sha1 = function (message) {var m = util.stringToWords(message),l = message.length * 8,w = [],H0 = 1732584193,H1 = -271733879,H2 = -1732584194,H3 = 271733878,H4 = -1009589776;m[l >> 5] |= 0x80 << 24 - l % 32;m[(l + 64 >>> 9 << 4) + 15] = l;for (var i = 0; i < m.length; i += 16) {var a = H0,b = H1,c = H2,d = H3,e = H4;for (var j = 0; j < 80; j++) {if (j < 16) w[j] = m[i + j];else {var n = w[j - 3] ^ w[j - 8] ^ w[j - 14] ^ w[j - 16];w[j] = n << 1 | n >>> 31;}var t = (H0 << 5 | H0 >>> 27) + H4 + (w[j] >>> 0) + (j < 20 ? (H1 & H2 | ~H1 & H3) + 1518500249 : j < 40 ? (H1 ^ H2 ^ H3) + 1859775393 : j < 60 ? (H1 & H2 | H1 & H3 | H2 & H3) - 1894007588 : (H1 ^ H2 ^ H3) - 899497514);H4 = H3;H3 = H2;H2 = H1 << 30 | H1 >>> 2;H1 = H0;H0 = t;}H0 += a;H1 += b;H2 += c;H3 += d;H4 += e;}return [H0, H1, H2, H3, H4];};SHA1._blocksize = 16;})();
+
+/***/ }),
+/* 28 */
+/*!*************************************************************************!*\
+  !*** D:/HBuilder/HBuilderProjects/alloss-upload/commont/libs/base64.js ***!
+  \*************************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });exports.Base64 = void 0;var Base64 = { _keyStr: "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=", encode: function encode(input) {var output = "";var chr1, chr2, chr3, enc1, enc2, enc3, enc4;var i = 0;input = Base64._utf8_encode(input);while (i < input.length) {chr1 = input.charCodeAt(i++);chr2 = input.charCodeAt(i++);chr3 = input.charCodeAt(i++);enc1 = chr1 >> 2;enc2 = (chr1 & 3) << 4 | chr2 >> 4;enc3 = (chr2 & 15) << 2 | chr3 >> 6;enc4 = chr3 & 63;if (isNaN(chr2)) {enc3 = enc4 = 64;} else if (isNaN(chr3)) {enc4 = 64;}output = output + this._keyStr.charAt(enc1) + this._keyStr.charAt(enc2) + this._keyStr.charAt(enc3) + this._keyStr.charAt(enc4);}return output;}, decode: function decode(input) {var output = "";var chr1, chr2, chr3;var enc1, enc2, enc3, enc4;var i = 0;input = input.replace(/[^A-Za-z0-9\+\/\=]/g, "");while (i < input.length) {enc1 = this._keyStr.indexOf(input.charAt(i++));enc2 = this._keyStr.indexOf(input.charAt(i++));enc3 = this._keyStr.indexOf(input.charAt(i++));enc4 = this._keyStr.indexOf(input.charAt(i++));chr1 = enc1 << 2 | enc2 >> 4;chr2 = (enc2 & 15) << 4 | enc3 >> 2;chr3 = (enc3 & 3) << 6 | enc4;output = output + String.fromCharCode(chr1);if (enc3 != 64) {output = output + String.fromCharCode(chr2);}if (enc4 != 64) {output = output + String.fromCharCode(chr3);}}output = Base64._utf8_decode(output);return output;}, _utf8_encode: function _utf8_encode(string) {string = string.replace(/\r\n/g, "\n");var utftext = "";for (var n = 0; n < string.length; n++) {var c = string.charCodeAt(n);if (c < 128) {utftext += String.fromCharCode(c);} else if (c > 127 && c < 2048) {utftext += String.fromCharCode(c >> 6 | 192);utftext += String.fromCharCode(c & 63 | 128);} else {utftext += String.fromCharCode(c >> 12 | 224);utftext += String.fromCharCode(c >> 6 & 63 | 128);utftext += String.fromCharCode(c & 63 | 128);}}return utftext;}, _utf8_decode: function _utf8_decode(utftext) {var string = "";var i = 0;var c = c1 = c2 = 0;while (i < utftext.length) {c = utftext.charCodeAt(i);if (c < 128) {string += String.fromCharCode(c);i++;} else if (c > 191 && c < 224) {c2 = utftext.charCodeAt(i + 1);string += String.fromCharCode((c & 31) << 6 | c2 & 63);i += 2;} else {c2 = utftext.charCodeAt(i + 1);c3 = utftext.charCodeAt(i + 2);string += String.fromCharCode((c & 15) << 12 | (c2 & 63) << 6 | c3 & 63);i += 3;}}return string;} };exports.Base64 = Base64;
+
+/***/ }),
+/* 29 */,
+/* 30 */,
+/* 31 */,
+/* 32 */,
+/* 33 */,
+/* 34 */,
+/* 35 */,
+/* 36 */,
+/* 37 */
+/*!*************************************************************************!*\
+  !*** D:/HBuilder/HBuilderProjects/alloss-upload/commont/libs/config.js ***!
+  \*************************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+var fileHost = ""; // oss基础地址，自己设置  如：'https：//baidu.com'
+var config = {
+  //aliyun OSS config
+  uploadImageUrl: "".concat(fileHost), // 默认存在根目录，可根据需求改
+  AccessKeySecret: '', // OSS中accessKeySecret
+  OSSAccessKeyId: '', // OSS中accessKeyId
+  timeout: 87600 //这个是上传文件时Policy的失效时间
+};
+module.exports = config;
+
 /***/ })
 ]]);
 //# sourceMappingURL=../../.sourcemap/mp-weixin/common/vendor.js.map

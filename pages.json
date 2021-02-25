@@ -3,7 +3,7 @@
 		{
 			"path": "pages/index/index",
 			"style": {
-				"navigationBarTitleText": "上传视频"
+				"navigationBarTitleText": "上传图片/视频"
 			}
 		}
 	],

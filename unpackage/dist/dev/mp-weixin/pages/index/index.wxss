@@ -1,37 +1,81 @@
-
-.content {
-	display: -webkit-box;
-	display: -webkit-flex;
-	display: flex;
-	-webkit-box-orient: vertical;
-	-webkit-box-direction: normal;
-	-webkit-flex-direction: column;
-	        flex-direction: column;
-	-webkit-box-align: center;
-	-webkit-align-items: center;
-	        align-items: center;
-	-webkit-box-pack: center;
-	-webkit-justify-content: center;
-	        justify-content: center;
+page.data-v-57280228 {
+  width: 100%;
+  height: 100%;
 }
-.logo {
-	height: 200rpx;
-	width: 200rpx;
-	margin-top: 200rpx;
-	margin-left: auto;
-	margin-right: auto;
-	margin-bottom: 50rpx;
+.content.data-v-57280228 {
+  padding-top: 30rpx;
 }
-.text-area {
-	display: -webkit-box;
-	display: -webkit-flex;
-	display: flex;
-	-webkit-box-pack: center;
-	-webkit-justify-content: center;
-	        justify-content: center;
+.content .height-80.data-v-57280228 {
+  height: 80rpx;
 }
-.title {
-	font-size: 36rpx;
-	color: #8f8f94;
+.content .image-content .image.data-v-57280228 {
+  width: 90%;
+  border-radius: 10rpx;
+  border: 1rpx #007AFF dashed;
+}
+.content .image-content .btn.data-v-57280228 {
+  margin-top: 10rpx;
+}
+.content .image-content .btn .mini-btn.data-v-57280228 {
+  width: 80%;
+}
+.content .video-content .image.data-v-57280228 {
+  width: 90%;
+  border-radius: 10rpx;
+  border: 1rpx #007AFF dashed;
+}
+.content .video-content .btn.data-v-57280228 {
+  margin-top: 10rpx;
+}
+.content .video-content .btn .mini-btn.data-v-57280228 {
+  width: 80%;
+}
+/* 公用样式部分 */
+.color-fa6400.data-v-57280228 {
+  color: #FA6400;
+}
+.text-36.data-v-57280228 {
+  font-size: 36rpx;
+}
+.text-bold.data-v-57280228 {
+  font-weight: bold;
+}
+.text-24.data-v-57280228 {
+  font-size: 24rpx;
+}
+/* 宽高相关 */
+.width-100.data-v-57280228 {
+  width: 100%;
+}
+.width-height-100.data-v-57280228 {
+  width: 100%;
+  height: 100%;
+}
+/* 弹性盒子相关 */
+.flex.data-v-57280228 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: flex;
+}
+.align-center.data-v-57280228 {
+  -webkit-box-align: center;
+  -webkit-align-items: center;
+          align-items: center;
+}
+.justify-center.data-v-57280228 {
+  -webkit-box-pack: center;
+  -webkit-justify-content: center;
+          justify-content: center;
+}
+/* 定位相关 */
+.relative.data-v-57280228 {
+  position: relative;
+}
+.absolute-50.data-v-57280228 {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  -webkit-transform: translate(-50%, -50%);
+          transform: translate(-50%, -50%);
 }
 
